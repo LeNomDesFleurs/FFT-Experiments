@@ -1,3 +1,6 @@
+
+
+
 if(DEFINED ENV{AAX_SDK_PATH})
     set(AAX_SDK_PATH $ENV{AAX_SDK_PATH})
 endif()
@@ -94,4 +97,6 @@ juce::juce_opengl
 juce::juce_product_unlocking
 )
 
+
 juce_generate_juce_header(ExamplePlugin)
+

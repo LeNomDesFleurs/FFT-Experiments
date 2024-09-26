@@ -56,6 +56,12 @@ float clipValue(float value, float min, float max) {
   return value;
 }
 
+int clipValue(int value, int min, int max) {
+  if (value > max) value = max;
+  if (value < min) value = min;
+  return value;
+}
+
 float spliter(float target, float state, float diff) {
   if (state < target) {
     state += (target - state) * 2;
@@ -82,8 +88,8 @@ float equalPowerCrossfade(float dry, float wet, float parameter) {
 }
 
 LFO::LFO(float sampleRate, float frequence) 
-: m_sample_rate {sampleRate}
-, m_frequence {frequence}
+: m_sample_rate (sampleRate)
+, m_frequence (frequence)
 {}
 
 void LFO::phasor() {
@@ -113,11 +119,12 @@ RandomGenerator::RandomGenerator(int _min, int _max)
   , max{_max}
   {}
 
+//using a cast is wrong, anymway I'm generating random
 RandomGenerator::RandomGenerator()
   : gen{std::random_device{}()}
-  , distrib{gen.min(), gen.max()}
-  , min{gen.min()}
-  , max{gen.max()}
+  , distrib{static_cast<int>(gen.min()), 10'000'000}
+  , min{static_cast<int>(gen.min())}
+  , max{static_cast<int>(10'000'000)}
 {}
 
 int RandomGenerator::getValue() { return distrib(gen); }

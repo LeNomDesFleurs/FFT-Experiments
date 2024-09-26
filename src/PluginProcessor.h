@@ -142,6 +142,10 @@ public:
         "Bartlett",
         "Hann",
         "Hamming",
+        "Falling",
+        "Raising",
+        "HammingReversed",
+        "Noise"
     };
 
     //======================================
@@ -184,8 +188,11 @@ public:
     PluginParameterLogSlider paramThreshold;
     PluginParameterLogSlider paramcontinuousfftsize;
     PluginParameterLogSlider paramRandomizePhase;
+    PluginParameterLogSlider paramRandomizeAmplitude;
     PluginParameterLogSlider paramPhaseAmplitude;
     PluginParameterLogSlider paramNoiseFiltering;
+    PluginParameterLogSlider paramWindowShape;
+    PluginParameterLogSlider paramFrequencyFolding;
 
 private:
     //==============================================================================

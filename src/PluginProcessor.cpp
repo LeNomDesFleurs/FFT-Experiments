@@ -47,8 +47,7 @@ TemplateFrequencyDomainAudioProcessor::TemplateFrequencyDomainAudioProcessor():
                         value = (float)(1 << ((int)value + 5));
                         paramFftSize.setCurrentAndTargetValue (value);
                         stft.updateParameters((int)paramFftSize.getTargetValue(),
-                                              (int)paramHopSize.getTargetValue(),
-                                              (int)paramWindowType.getTargetValue());
+                                              (int)paramHopSize.getTargetValue());
                         return value;
                     })
     , paramHopSize (parameters, "Hop size", hopSizeItemsUI, hopSize8,
@@ -57,17 +56,14 @@ TemplateFrequencyDomainAudioProcessor::TemplateFrequencyDomainAudioProcessor():
                         value = (float)(1 << ((int)value + 1));
                         paramHopSize.setCurrentAndTargetValue (value);
                         stft.updateParameters((int)paramFftSize.getTargetValue(),
-                                              (int)paramHopSize.getTargetValue(),
-                                              (int)paramWindowType.getTargetValue());
+                                              (int)paramHopSize.getTargetValue());
                         return value;
                     })
     , paramWindowType (parameters, "Window type", windowTypeItemsUI, STFT::windowTypeHann,
                        [this](float value){
                            const ScopedLock sl (lock);
                            paramWindowType.setCurrentAndTargetValue (value);
-                           stft.updateParameters((int)paramFftSize.getTargetValue(),
-                                                 (float)paramHopSize.getTargetValue(),
-                                                 (int)paramWindowType.getTargetValue());
+                           stft.updateWindowShape((float)paramWindowType.getTargetValue());
                            return value;
                        })
     , paramcontinuousfftsize (parameters, "hopp size", "samples", 0.f, 1.f, 0.f, 
@@ -105,6 +101,27 @@ TemplateFrequencyDomainAudioProcessor::TemplateFrequencyDomainAudioProcessor():
                             stft.updatePhaseAmplitude(value);
                             return value;
                         })
+    , paramRandomizeAmplitude (parameters, "random amlitude", "uni", 0.f, 2.f, 0.f, 
+                        [this](float value){
+                            const ScopedLock sl(lock);
+                            paramRandomizeAmplitude.setCurrentAndTargetValue(value);
+                            stft.updateRandomAmplitude(value);
+                            return value;
+                        })
+    , paramWindowShape (parameters, "win shape", "t", 0.f, 7.f, 0.f, 
+                        [this](float value){
+                            const ScopedLock sl(lock);
+                            paramWindowShape.setCurrentAndTargetValue(value);
+                            stft.updateWindowShape(value);
+                            return value;
+                        })
+    , paramFrequencyFolding (parameters, "folding", "t", 0.f, 100.f, 0.f, 
+                        [this](float value){
+                            const ScopedLock sl(lock);
+                            paramFrequencyFolding.setCurrentAndTargetValue(value);
+                            stft.updateFrequencyFolding((int)value);
+                            return value;
+                        })
 {
     parameters.apvts.state = ValueTree (Identifier (getName().removeCharacters ("- ")));
 }
@@ -124,15 +141,20 @@ void TemplateFrequencyDomainAudioProcessor::prepareToPlay (double sampleRate, in
     paramThreshold.reset (sampleRate, smoothTime);
     paramcontinuousfftsize.reset (sampleRate, smoothTime);
     paramRandomizePhase.reset(sampleRate, smoothTime);
+    paramRandomizeAmplitude.reset(sampleRate, smoothTime);
     paramPhaseAmplitude.reset(sampleRate, smoothTime);
+    paramWindowShape.reset(sampleRate, smoothTime);
+    paramFrequencyFolding.reset(sampleRate, smoothTime);
 
     //======================================
 
-    stft.setup (getTotalNumInputChannels());
+    stft.updateRandomAmplitude(paramPhaseAmplitude.getTargetValue());
+    stft.updateWindowShape(paramWindowShape.getTargetValue());
+    stft.setup(getTotalNumInputChannels());
     stft.updateParameters((int)paramFftSize.getTargetValue(),
-                          (int)paramHopSize.getTargetValue(),
-                          (int)paramWindowType.getTargetValue());
+                          (int)paramHopSize.getTargetValue());
     stft.updateThreshold(paramThreshold.getTargetValue());
+    stft.updateFrequencyFolding(paramFrequencyFolding.getTargetValue());
 }
 
 void TemplateFrequencyDomainAudioProcessor::releaseResources()

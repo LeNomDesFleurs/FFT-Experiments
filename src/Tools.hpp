@@ -14,7 +14,7 @@
 #include <vector>
 #include <random>
 
-static const float PI {3.14159265359};
+static const float PI = 3.14159265359;
 
 namespace noi {
 
@@ -56,7 +56,7 @@ float equalPowerCrossfade(float dry, float wet, float parameter);
 
 class LFO {
  public:
-  float m_status{};
+  float m_status {0.f};
   float m_sample_rate;
   float m_frequence;
 
